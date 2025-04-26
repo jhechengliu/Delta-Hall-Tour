@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delta Hall Smart Tour Quiz</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#f5f5f5;}
+#q{font-size:1.3em;margin-bottom:20px;}
+button{padding:10px 14px;margin:6px;border:none;border-radius:6px;background:#3b82f6;color:white;font-size:1em;cursor:pointer;}
+button:hover{opacity:0.85;}
+#progress{margin-top:10px;color:#333;}
+</style>
+</head>
+<body>
+<h2 id="title"></h2>
+<div id="quiz">
+<p id="q"></p>
+<div id="options"></div>
+<p id="progress"></p>
+</div>
+<script>
+const data_en = [
+  {q:"What year was Delta Hall inaugurated?",ops:["2008","2011","2015"],ans:1},
+  {q:"Which company donated funds to build Delta Hall?",ops:["TSMC","Delta Electronics","ASUS"],ans:1},
+  {q:"The courtyard ventilation uses the ___ effect.",ops:["Greenhouse","Chimney","Venturi"],ans:1},
+  {q:"How many seats are in Jin‑De Lecture Hall?",ops:["120","250","400"],ans:1},
+  {q:"Which platform monitors power in smart classrooms?",ops:["HVAC Dashboard","EnOL Energy Cloud","SCADA"],ans:1},
+  {q:"How many above‑ground floors does Delta Hall have?",ops:["6","9","12"],ans:1},
+  {q:"Which department occupies the basement classrooms?",ops:["Computer Science","Materials Science & Engineering","Physics"],ans:1},
+  {q:"Delta Hall saves roughly ___% energy vs traditional buildings.",ops:["10","20","35"],ans:1},
+  {q:"Which R&D center is located inside Delta Hall?",ops:["Delta‑NTHU R&D Center","Intel Labs Taiwan","Green Campus Lab"],ans:0},
+  {q:"What feature encourages walking instead of elevator?",ops:["Friendly staircase","Moving walkway","Escalator"],ans:0}
+];
+
+const data_zh = [
+  {q:"台達館於哪一年正式啟用？",ops:["2008","2011","2015"],ans:1},
+  {q:"捐資興建台達館的企業是？",ops:["台積電","台達電子","華碩"],ans:1},
+  {q:"中庭通風利用何種效應？",ops:["溫室效應","煙囪效應","文丘里效應"],ans:1},
+  {q:"璟德講堂可容納多少人？",ops:["120","250","400"],ans:1},
+  {q:"智慧教室使用哪個平台監控用電？",ops:["HVAC 儀表板","EnOL Energy Cloud","SCADA"],ans:1},
+  {q:"台達館共有幾層地上樓層？",ops:["6","9","12"],ans:1},
+  {q:"地下層教室主要屬於哪個系？",ops:["資工系","材料系","物理系"],ans:1},
+  {q:"台達館較傳統建築節能約多少％？",ops:["10","20","35"],ans:1},
+  {q:"館內設立的研發中心名稱？",ops:["清華-台達聯合研發中心","Intel Labs Taiwan","綠色校園實驗室"],ans:0},
+  {q:"哪項設計鼓勵步行而非搭電梯？",ops:["友善樓梯","自動步道","電扶梯"],ans:0}
+];
+
+const urlParams = new URLSearchParams(window.location.search);
+const lang = urlParams.get('lang') === 'en' ? 'en' : 'zh';
+const dataset = lang === 'en' ? data_en : data_zh;
+
+document.getElementById('title').textContent = lang === 'en' ? 'Delta Hall Smart Tour Quiz' : '台達館導覽小測驗';
+
+let idx = 0;
+let score = 0;
+let userAnswers = [];
+
+const qEl = document.getElementById('q');
+const optsEl = document.getElementById('options');
+const progEl = document.getElementById('progress');
+
+function loadQuestion() {
+  const current = dataset[idx];
+  qEl.textContent = current.q;
+  optsEl.innerHTML = '';
+  current.ops.forEach((op, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = op;
+    btn.onclick = () => selectAnswer(i);
+    optsEl.appendChild(btn);
+  });
+  progEl.textContent = (lang === 'en' ? 'Question ' : '題目 ') + (idx + 1) + '/' + dataset.length;
+}
+
+function selectAnswer(choice) {
+  const current = dataset[idx];
+  userAnswers.push({question: current.q, correct: current.ops[current.ans], picked: current.ops[choice]});
+  if (choice === current.ans) score++;
+  idx++;
+  if (idx < dataset.length) {
+    loadQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  let html = '<h3>' + (lang === 'en' ? 'Your score' : '你的得分') + ': ' + score + '/' + dataset.length + '</h3>';
+  html += '<h4>' + (lang === 'en' ? 'Correct Answers' : '正確答案') + ':</h4><ol>';
+  userAnswers.forEach(item => {
+    html += '<li><strong>' + item.question + '</strong><br>' +
+            (lang === 'en' ? 'Correct' : '正確') + ': ' + item.correct + '<br>' +
+            (lang === 'en' ? 'You chose' : '你的答案') + ': ' + item.picked + '</li>';
+  });
+  html += '</ol>';
+  document.getElementById('quiz').innerHTML = html;
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
